@@ -3,33 +3,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CloudflareDDNS
 {
     public class PPPoE
     {
-        public void pppoeConnect(SettingRegistry.AutoPPPoE ppp)
+        public static void Dial(Setting.PPPoESetting setting)
         {
-            using (Process p = new Process())
+            using (var p = new Process())
             {
                 p.StartInfo.FileName = "rasdial";
-                p.StartInfo.Arguments = ppp.name + " " + ppp.account + " " + ppp.password;
+                p.StartInfo.Arguments = $"{setting.Name} {setting.User} {setting.Password}";
                 p.StartInfo.CreateNoWindow = true;
                 p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardOutput = true;
                 p.Start();
-            }
-        }
-
-        public void pppoeDisconnect()
-        {
-            using (Process p = new Process())
-            {
-                p.StartInfo.FileName = "rasdial";
-                p.StartInfo.Arguments = "/DISCONNECT";
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.UseShellExecute = false;
-                p.Start();
+                Logger.Write($"Info | PPPoE::Dial | {p.StartInfo.Arguments} | {p.StandardOutput.ReadToEnd()}");
+                Thread.Sleep(5000);
             }
         }
     }
